@@ -1,0 +1,2 @@
+# treadmill
+Our objective is to provide real-time classification of treadmill usage patterns based on accelerometer and magnetometer measurements. We collected data from treadmills in the Rose-Hulman Student Recreation Center (SRC) using Shimmer3 sensor units. We identified useful data features and classifiers for predicting treadmill usage patterns. We also prototyped a proof of concept wireless, real-time classification system. 
