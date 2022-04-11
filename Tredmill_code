@@ -1,0 +1,143 @@
+#Treadmill Dashboard
+#GP 106: computing
+#Group 56
+#milestone 01
+#E/18/166,167,168
+
+# To run program with custom parameters - you can give the parameters in any order
+# python E18_G_XXX.py --motor 4 --radius "0.09 m" --height "170 cm" --weight "100 lb"
+
+# To run program with default parameters
+# python E18_G_XXX.py
+
+
+import argparse
+import time
+import sys
+
+
+''' A program which calculates
+        Speed
+        Distance walked/ran
+        Calories burnt
+        Number of steps taken
+                              '''
+#FUNCTIONS
+
+#The function need to separate the num value and change to covert the SI unit
+def separate_inputs(input_arg):
+    radius__parameters = {'cm':100,'in':39.3701,'m':1,}
+    #time_parameters = { 's':1,'min':60,'h':3600 }
+    weight_parameters={'kg':1,'lb':2.20462}
+    height_parameters={'cm':100,'in':39.3701,'m':1,}
+    parsed_input = 0
+    try:
+        inputs=input_arg.split() # split the input
+        value=float(inputs[0])#get value 
+        key=inputs[-1].lower()#get unit
+        if key  in radius__parameters.keys():#calling the parameters in dict
+            parsed_input=float(value/radius__parameters[key])#convert to required SI units
+            
+       # elif  key in time_parameters.keys():#caling the parameters in dic
+           #5 parsed_input=float(value*time_parameters[key])#convert to required SI units
+            
+        elif key in weight_parameters.keys():#calling the parameters in dic
+            parsed_input=float(value/weight_parameters[key])#convert to required SI units
+        
+        elif key in height_parameters.keys():#calling the parameters in dic
+            parsed_input = float(value/height_parameters[key])#convert to required SI units
+        else :
+            raise ValueError
+        if parsed_input<=0:
+            raise ArithmeticError
+        return parsed_input
+    except ValueError as e:
+        print("User doesn't Enter the unit or it is not in required format")
+        sys.exit()
+    except ArithmeticError as e:
+        print("Input of the  User is not a ranged value ")
+        sys.exit()
+
+#A funtion to get the speed of the treadmill in ms-1
+def get_speed(RPM,radius):
+    speed =(radius*RPM*2*22)/(60*7)  #speed  of the treadmill (ms-1)
+    return speed
+
+#A funtion to get the distance traveled by the user
+def get_distance (speed,time):
+    distance_travel=(speed*time)#Distance travel by the person
+    return distance_travel
+
+
+#A funtion to get the calories burnt 
+def get_calories(speed,weight,time):
+    speed_in_mmin=(speed*60) #convert to mmin-1(# for our calculation we create a fuction
+                             # that used to change meter per second(ms) to meter per minutes(mmin-1))
+    grade=0  #incline(%grade of treadmill)
+    if speed_in_mmin>134:
+        MET=((speed_in_mmin*0.2)+(speed_in_mmin*0.9*grade)+3.5)/3.5  #MET value when running
+             # we put '0' because the grade/angle='0',which is parrelle to ground
+    else:
+        MET=((speed_in_mmin*0.1)+(speed_in_mmin*1.8*grade)+3.5)/3.5  #MET value when walking
+             # we put '0' because the grade/angle='0',which is parrellel to ground
+    calories_burnt=(MET*3.5*weight*time/60)/(200)  #Calories burnt within the time
+    return calories_burnt
+
+
+#A funtion to get the number of steps
+def get_steps (speed,distance,h):
+    speed_in_mmin=(speed*60) #convert to mmin-1
+    if speed_in_mmin>402:
+        step=distance/(1.155*h)#when sprinters running
+    else:
+        step=distance/(0.415*h) #when walking
+    return step
+
+
+
+
+    
+
+if __name__=="__main__":
+
+    args=argparse.ArgumentParser()
+    args.add_argument("--motor", type=int, dest="motor_rate", help="EXAMPLE: 3", default=3)
+    args.add_argument("--radius", type=str, dest="radius", help="EXAMPLE: 8 cm", default="8 cm")
+    args.add_argument("--weight", type=str, dest="weight", help="EXAMPLE: 50 kg", default="50 kg")
+    args.add_argument("--height", type=str, dest="height", help="EXAMPLE: 63 in", default="63 in")
+    #args.add_argument("--time", type=str, dest="time", help="EXAMPLE: 1 h", default="1 h")
+    # We can access each value by putting 'args.' prefix with name 
+    args=args.parse_args()
+    r = separate_inputs(args.radius)#input
+    h = separate_inputs(args.height)#input
+    w = separate_inputs(args.weight)#input
+    rpm= float(args.motor_rate)
+    try:
+        assert rpm>0
+    except:
+        print("Input of the  User is not a ranged value ")#checking whether the rpm is valid
+        sys.exit()
+    start_time=time.time()
+        
+    while True:
+        t=(time.time()-start_time)
+        speed=get_speed(rpm,r)#get speed
+        distance=get_distance(speed,t)#get distance
+        cal = get_calories(speed,w,t)#get calories
+        steps = get_steps(speed,distance,h)# get steps
+    
+        
+        ##OUTPUT/ print
+        print(int(speed) ,'m/s')  #Output the speed of the treadmill
+        print(int(distance),'m')  #Output the distance traveled
+        print(int(cal),'cal')  #Output of the calories burnt
+        print(int(steps))#Output \ Number of steps taken
+        print()
+        
+        #time.sleep(1)
+        #function is used to add delay in the execution of a program.
+        #We can use python sleep function to halt the execution of the program for given time in seconds
+
+
+    
+
